@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Memory Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 50px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(4, 100px);
+      grid-gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      width: 100px;
+      height: 100px;
+      background: #444;
+      color: white;
+      font-size: 36px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .flipped, .matched {
+      background: #fff;
+      color: #000;
+      cursor: default;
+    }
+
+    .matched {
+      background: #4caf50;
+      color: white;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background-color: #2196f3;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #1976d2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Memory Game</h1>
+  <div class="game-board" id="gameBoard"></div>
+  <div class="buttons">
+    <button onclick="startGame()">Restart</button>
+    <button onclick="window.location.href='flappybird.html'">New Game</button>
+  </div>
+
+  <script>
+    const symbols = ['🍎', '🍌', '🍇', '🍒'];
+    let gameBoard = document.getElementById('gameBoard');
+    let firstCard = null;
+    let lockBoard = false;
+
+    function startGame() {
+      // Reset variables
+      firstCard = null;
+      lockBoard = false;
+
+      // Clear board
+      gameBoard.innerHTML = '';
+
+      // Create new shuffled card set
+      let cards = [...symbols, ...symbols];
+      cards.sort(() => 0.5 - Math.random());
+
+      // Generate cards
+      cards.forEach(symbol => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.symbol = symbol;
+        card.textContent = '';
+        card.addEventListener('click', handleCardClick);
+        gameBoard.appendChild(card);
+      });
+    }
+
+    function handleCardClick(e) {
+      const clicked = e.target;
+
+      if (lockBoard || clicked.classList.contains('flipped') || clicked.classList.contains('matched')) return;
+
+      clicked.textContent = clicked.dataset.symbol;
+      clicked.classList.add('flipped');
+
+      if (!firstCard) {
+        firstCard = clicked;
+      } else {
+        if (firstCard.dataset.symbol === clicked.dataset.symbol) {
+          firstCard.classList.add('matched');
+          clicked.classList.add('matched');
+        } else {
+          lockBoard = true;
+          setTimeout(() => {
+            firstCard.textContent = '';
+            clicked.textContent = '';
+            firstCard.classList.remove('flipped');
+            clicked.classList.remove('flipped');
+            lockBoard = false;
+          }, 1000);
+        }
+        firstCard = null;
+      }
+    }
+
+    // Initialize game
+    startGame();
+  </script>
+</body>
+</html>

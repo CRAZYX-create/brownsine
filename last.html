@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>BGMI Gun Quiz</title>
+  <style>
+    body {
+      background-color: #f0f8ff;
+      color: #222;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    .quiz-container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 30px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    img {
+      width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .options {
+      text-align: left;
+      margin: 20px 0;
+    }
+    .options label {
+      display: block;
+      margin-bottom: 10px;
+      cursor: pointer;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+    #nextGame {
+      display: none;
+      background-color: #007BFF;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h2 id="question">Loading question...</h2>
+    <img id="gunImage" src="" alt="Gun Image">
+    <div class="options" id="options"></div>
+    <button id="nextBtn" disabled>Next</button>
+    <button id="nextGame" onclick="location.href='uc.html'">Next Game</button>
+  </div>
+
+  <audio id="winSound" src="win_sound.mp3" preload="auto"></audio>
+
+  <script>
+    const quiz = [
+      {
+        question: "Which AR is highly customizable and reliable?",
+        image: "https://cdn.bluestacks.com/bs-images/pubg-mobile-guns-list-guide-1.jpg",
+        options: ["M416", "AKM", "Groza", "SCAR-L"],
+        answer: "M416"
+      },
+      {
+        question: "Which gun is a drop-exclusive AR with high damage?",
+        image: "https://cdn.bluestacks.com/bs-images/PUBG-gun-groza.jpg",
+        options: ["Groza", "M416", "QBZ", "ACE32"],
+        answer: "Groza"
+      },
+      {
+        question: "Which sniper is a bolt-action with high base damage?",
+        image: "https://cdn.bluestacks.com/bs-images/pubg-awm.jpg",
+        options: ["AWM", "M24", "Kar98K", "AMR"],
+        answer: "AWM"
+      },
+      {
+        question: "Which DMR can fire full auto and is very powerful?",
+        image: "https://staticg.sportskeeda.com/editor/2021/06/d6e0b-16228112885971-800.jpg",
+        options: ["MK14", "SLR", "Mini14", "SKS"],
+        answer: "MK14"
+      },
+      {
+        question: "Which SMG has the fastest fire rate in BGMI?",
+        image: "https://cdn.bluestacks.com/bs-images/pubg-uzi.jpg",
+        options: ["UZI", "UMP45", "Vector", "Thompson"],
+        answer: "UZI"
+      },
+      {
+        question: "Which LMG is best for prone and stable firing?",
+        image: "https://cdn.bluestacks.com/bs-images/pubg-dp-28.jpg",
+        options: ["M249", "MG3", "DP-28", "PKM"],
+        answer: "DP-28"
+      },
+      {
+        question: "Which sniper is common and has high damage?",
+        image: "https://cdn.bluestacks.com/bs-images/pubg-m24.jpg",
+        options: ["Kar98K", "M24", "AMR", "Mosin Nagant"],
+        answer: "M24"
+      }
+    ];
+
+    const questionEl = document.getElementById("question");
+    const imageEl = document.getElementById("gunImage");
+    const optionsEl = document.getElementById("options");
+    const nextBtn = document.getElementById("nextBtn");
+    const nextGameBtn = document.getElementById("nextGame");
+    const winSound = document.getElementById("winSound");
+
+    let currentQ = 0;
+    let score = 0;
+
+    function loadQuestion() {
+      const q = quiz[currentQ];
+      questionEl.textContent = `Q${currentQ + 1}. ${q.question}`;
+      imageEl.src = q.image;
+      optionsEl.innerHTML = "";
+      q.options.forEach(opt => {
+        const optId = "opt_" + opt.replace(/\s+/g, "");
+        optionsEl.innerHTML += `
+          <label>
+            <input type="radio" name="option" value="${opt}" id="${optId}"> ${opt}
+          </label>
+        `;
+      });
+      nextBtn.disabled = true;
+      document.querySelectorAll("input[name='option']").forEach(input => {
+        input.addEventListener("change", () => {
+          nextBtn.disabled = false;
+        });
+      });
+      nextBtn.textContent = currentQ < quiz.length - 1 ? "Next" : "Submit";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      const selected = document.querySelector("input[name='option']:checked");
+      if (!selected) return;
+
+      const answer = quiz[currentQ].answer;
+      if (selected.value === answer) score++;
+
+      currentQ++;
+      if (currentQ < quiz.length) {
+        loadQuestion();
+      } else {
+        questionEl.textContent = `Quiz Finished! Your Score: ${score} / ${quiz.length}`;
+        imageEl.style.display = "none";
+        optionsEl.innerHTML = "";
+        nextBtn.style.display = "none";
+        nextGameBtn.style.display = "inline-block";
+
+        if (score === quiz.length) {
+          winSound.play();
+        }
+      }
+    });
+
+    // Start the quiz
+    loadQuestion();
+  </script>
+</body>
+</html>
